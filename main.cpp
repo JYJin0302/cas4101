@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include <algorithm>
+#include <set>
 
 using namespace std;
 
@@ -21,8 +23,8 @@ struct SteinerForest{
 
     void addEdge(array<int, 4> e){
         int u = e[0], v = e[1], cost = e[2], length = e[3];
-        adj[u].push_back(array<int, 3>({v, cost, length}));
-        adj[v].push_back(array<int, 3>({u, cost, length}));
+        adjList[u].push_back(array<int, 3>({v, cost, length}));
+        adjList[v].push_back(array<int, 3>({u, cost, length}));
     }
 
     int getMinimumDistance(int s, int t){
@@ -48,6 +50,8 @@ struct SteinerForest{
 
     void setup0edge(int s, int t){
         vector<int> dist(V+1, -1);
+        vector<int> visitOrd(V+1);
+        int ord = 0;
         set<pair<int, int>> st;
         st.insert(make_pair(0, s));
         while(!st.empty()){
@@ -56,6 +60,7 @@ struct SteinerForest{
 
             if (dist[f.second] != -1) continue;
             dist[f.second] = f.first;
+            visitOrd[f.second] = ++ord;
 
             for(auto adj : adjList[f.second]){
                 int newDist = f.first + adj[1];
@@ -66,25 +71,28 @@ struct SteinerForest{
         for(int i = 1; i <= V; i++){
             if (dist[i] == -1) continue;
             for(auto adj : adjList[i]){
-                if(dist[adj[0]] + adj[1] == dist[i]) from[i] = adj[0];
+                if(dist[adj[0]] + adj[1] == dist[i] && visitOrd[adj[0]] < visitOrd[i]) from[i] = adj[0];
             }
         }
 
+        //cout << "phase 1" << endl;
         int cur = t;
         vector<int> route;
         while(cur != s){
+            //cout << "Cur: " << cur << endl;
             route.push_back(cur);
             int nCur = from[cur];
             for(auto f : adjList[cur]){
                 if (f[0] == nCur && dist[f[0]] + f[1] == dist[cur]){
                     // answer add
-                    result.push_back({cur, ncur, f[1], f[2]});
+                    if (f[1]) result.push_back({cur, nCur, f[1], f[2]});
                     break;
                 }
             }
             cur = from[cur];
         }
         route.push_back(cur);
+        //cout << "PHASE 2 " << endl;
 
         for(int i = 1; i < (int)route.size(); i++){
             addEdge({route[i], route[i-1], 0, 0});
@@ -92,6 +100,7 @@ struct SteinerForest{
     }
 
     void printResult(){
+
         cout << string(30, '-') << endl;
         cout << "Used Edges: " << endl;
         for(auto f : result){
@@ -100,14 +109,19 @@ struct SteinerForest{
         cout << string(30, '-') << endl;
     }
 
+    void lastSetup(){
+        for(int i = 1; i <= V; i++){
+            adjList[i].clear();
+        }
+        for(auto f : result) addEdge(f);
+    }
+
 };
-
-
 
 int main(){
 
     // 입력
-    int nVertex, int nEdge;
+    int nVertex, nEdge;
     cin >> nVertex >> nEdge;
 
     vector<array<int, 4>> edge;
@@ -129,6 +143,7 @@ int main(){
     int Budget;
     cin >> Budget;
 
+    cout << "input done "<< endl;
     // algorithm 수행
 
     // sort edge by length  
@@ -138,10 +153,12 @@ int main(){
     for(int i = 0; i < nEdge; i++){
         // use only 0~i edge
 
+        //cout << "bound: " << i << endl;
+
         // setup edges
         SteinerForest sf(nVertex);
         for(int j = 0; j <= i; j++){
-            st.addEdge(edge[j]);
+            sf.addEdge(edge[j]);
         }
 
         // go Steiner Forest algorithm
@@ -150,8 +167,9 @@ int main(){
 
         bool valid = 1;
         vector<bool> done(nTerminal);
-        for(int k = 0; k < nTerminal && valid; k++){
+        for(int k = 0; k < nTerminal; k++){
             // calculate every distance
+           // cout << "terminal : " << k << endl;
 
             int minDistance = 10101010;
             int minPair = -1;
@@ -160,6 +178,7 @@ int main(){
                 if (done[t]) continue;
 
                 int D = sf.getMinimumDistance(terminal[t].first, terminal[t].second);
+               // cout << "Disance: "<< terminal[t].first << ' ' << terminal[t].second<< " | " << D << endl;
                 if (D == -1){
                     valid = 0;
                     break;
@@ -171,17 +190,29 @@ int main(){
                 }
             }
 
+            if (!valid) break;
+           // cout << "found: " << minPair<< " " << minDistance << endl;
             done[minPair] = 1;
             totalCost += minDistance;
-            sf.setup0edge(terminal[minPair.x], terminal[minPair.y]);
+            //cout << "GO setup: "<<endl;
+            sf.setup0edge(terminal[minPair].first, terminal[minPair].second);
+            //cout << "setup Done" << endl;
         }
 
         if (valid && totalCost <= 2*Budget){
             // found
             cout << "Solution Found "<< endl;
             // print answer here
+            cout << "Total cost: " << totalCost << endl;
+            cout << "Budget: "<< Budget<< endl;
             sf.printResult();
 
+            sf.lastSetup();
+            int maxD = 0;
+            for(int t = 0; t < nTerminal; t++){
+                maxD = max(maxD, sf.getMinimumDistance(terminal[t].first, terminal[t].second));
+            }
+            cout << "Maximum distance: " << maxD << endl;
             return 0;
         }
     }
