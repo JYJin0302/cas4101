@@ -1,3 +1,0 @@
-C:/Users/JYJin/Desktop/Univ/4-1/컴종설/Codebase/build/CMakeFiles/myapp.dir
-C:/Users/JYJin/Desktop/Univ/4-1/컴종설/Codebase/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/JYJin/Desktop/Univ/4-1/컴종설/Codebase/build/CMakeFiles/ZERO_CHECK.dir
