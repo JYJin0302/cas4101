@@ -2,6 +2,8 @@
 #include <vector>
 #include <array>
 
+using namespace std;
+
 bool cmp(array<int, 4>& edge1, array<int, 4>& edge2){
     return edge1[3] < edge2[3];
 }
@@ -106,9 +108,9 @@ int main(){
 
     // 입력
     int nVertex, int nEdge;
-    std::cin >> nVertex >> nEdge;
+    cin >> nVertex >> nEdge;
 
-    std::vector<array<int, 4>> edge;
+    vector<array<int, 4>> edge;
     for(int i = 0; i < nEdge; i++){
         int u, v, cost, length;
         cin >> u >> v >> cost >> length;
@@ -117,7 +119,7 @@ int main(){
 
     int nTerminal;
     cin >> nTerminal;
-    std::vector<pair<int, int>> terminal;
+    vector<pair<int, int>> terminal;
     for(int i = 0; i < nTerminal; i++){
         int s, t;
         cin >> s >> t;
