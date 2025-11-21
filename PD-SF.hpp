@@ -4,7 +4,7 @@
 #include <queue>
 
 using namespace std;
-int PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&terminals, vector<vector<int > > & adjMatrix, vector<vector<int > > & pairedTerminals, vector<vector<int > > & E ,int &cleanedSolution, int &initialSolution);
+void PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&terminals, vector<vector<int > > & adjMatrix, vector<vector<int > > & pairedTerminals, vector<vector<int > > & E ,int &cleanedSolution, int &initialSolution, vector<vector<int>>& solution);
 
 void PrimalDualAlgorithmNoPQ(int &nVertex, int &nEdges, int &nTerminals, int *&terminals, vector<vector<int > > & adjMatrix, vector<vector<int > > & pairedTerminals, vector<vector<int > > & E ,int &cleanedSolution, int &initialSolution);
 

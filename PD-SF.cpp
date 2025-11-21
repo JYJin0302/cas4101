@@ -35,15 +35,41 @@ bool operator== (const edges& lhs, const edges& rhs)
     return (lhs.edgeCoordinates.first == rhs.edgeCoordinates.first)||(lhs.edgeCoordinates.second == rhs.edgeCoordinates.first);
 }
 
-int PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&terminals, vector<vector<int > > & adjMatrix, vector<vector<int > > & pairedTerminals, vector<vector<int > > & E ,int &cleanedSolution, int &initialSolution)
+void PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&terminals, vector<vector<int > > & adjMatrix, vector<vector<int > > & pairedTerminals, vector<vector<int > > & E ,int &cleanedSolution, int &initialSolution, vector<vector<int>>& solution)
 {
     struct timeval time_start,time_end;
     gettimeofday(&time_start, NULL);
-    //cout<<"--------------------------------------------"<<endl;
-    cout<<"Starting Primal Dual Algorithm: \n";
+    // cout<<"--------------------------------------------"<<endl;
+    // cout<<"Starting Primal Dual Algorithm: \n";
     steinerForest solutionGraph(nVertex); // Create the solution graph
-    cout<<"n: "<<nVertex<<endl;
-    cout<<"m: "<<nEdges<<endl;
+    // cout<<"n: "<<nVertex<<endl;
+    // cout<<"m: "<<nEdges<<endl;
+    // cout<<"t: "<<nTerminals<<endl;
+
+    // cout << "input test : " << endl;
+    // for(int i =0 ; i < nVertex; i++){
+    //     for(int j= 0; j < nVertex;j++){
+    //         if (adjMatrix[i][j]){
+    //             cout << i << ' ' << j << " <>" << adjMatrix[i][j] << endl;
+    //         }
+    //     }
+    // }
+
+    // cout << "Terminals: ";
+    // for(int i = 0; i < nTerminals;i++) cout << terminals[i] << ' ';
+    // cout << endl;
+
+    // for(int i =0; i < (int)pairedTerminals.size(); i++){
+    //     cout << pairedTerminals[i][0] << ' ' << pairedTerminals[i][1] << " || ";
+    // }
+    // cout << endl;
+
+    // cout << "EEE: " << endl;;
+    // for(auto k : E) {
+    //     for(auto f: k) cout << f<< ' ';
+    //     cout << endl;
+    // }
+    //cout << "INPUT END" << endl;
     // Initialize MoatSets:
     // MoatSets[i][0] keeps the moat label of vertex i, MoatSets[i][1] shows if the vertex is in an active moat, MoatSets[i][2] shows the growth rate for the vertex
     vector<vector < double > > MoatSets;
@@ -70,6 +96,9 @@ int PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&termin
         int j=E[e][1];
         int w=adjMatrix[i][j];
         
+        if (i > j) swap(i, j);
+       // cout << "EDGE process: "<< MoatSets[i][1] << ' ' << MoatSets[j][1] << " i, j:" << i << ' '<< j << endl;
+
         if (MoatSets[i][1]==1 && MoatSets[j][1]==1)
         {
             edges myEdge;
@@ -107,7 +136,7 @@ int PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&termin
     int itr=0;
     while (flag==0 && pq.size()!=0)
     {
-       // cout<<"############ "<<itr++<<endl;
+        //cout<<"############ "<<itr++<<endl;
 
         vector<edges> selectedEdges;
         edges minEdge=pq.top();
@@ -134,7 +163,7 @@ int PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&termin
                     pqFlag=0;
             }
         }
-        //cout<<"Update MoatSets labels \n";
+       // cout<<"Update MoatSets labels " << endl;
         // Update MoatSets labels
         int minLabel;
         for (int i=0; i<selectedEdges.size(); i++) {
@@ -154,18 +183,18 @@ int PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&termin
                
                 solutionGraph.addEdge(v1,v2, adjMatrix[v1][v2]);
                 initialSolution=initialSolution+adjMatrix[v1][v2];
-//                solutionVector.push_back(selectedEdges[i]);
+                solutionVector.push_back({v1, v2, adjMatrix[v1][v2]});
             }
         }
         // ----------------------------------------------------------------------------------------
         // Immidiately after adding the edges to the solution, will check if all pairs are connected if so then break the while loop
-       // cout<<"Here 0\n";
+        //cout<<"Here 0 " << endl;
 
         flag=0;
         
         for (int i=0; i<pairedTerminals.size(); i++)
         {
-            cout<<"("<<pairedTerminals[i][0]<<" , "<<pairedTerminals[i][1]<<" )\n";
+            //cout<<"("<<pairedTerminals[i][0]<<" , "<<pairedTerminals[i][1]<<" )" << endl;
             if (MoatSets[pairedTerminals[i][0]][0]==MoatSets[pairedTerminals[i][1]][0])
                 flag=1;
             else
@@ -174,7 +203,7 @@ int PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&termin
             }
         }
         if (flag == 1) break;
-       // cout<<"Here 2\n";
+     //cout<<"Here 2 " << endl;
 
         // ------------------------------------------
         // Updating the Priority Queue
@@ -242,7 +271,15 @@ int PrimalDualAlgorithm(int &nVertex, int &nEdges, int &nTerminals, int *&termin
     // cout<<"PD final solution: "<<cleanedSolution<<endl;
     // cout<< "Time: "<<durationAlg<<"\n";
     // cout<<"--------------------------------------------"<<endl;
-    return cleanedSolution;
+
+    if (!flag) cleanedSolution = -1;
+    solution = solutionVector;
+    // cout << "Solution set: ";
+    // for(auto f : solutionVector){
+    //     for(auto k : f) cout << k << ' ';
+    //     cout << '\n';
+    // }
+    // cout << endl;
 };
 
 void PrimalDualAlgorithmNoPQ(int &nVertex, int &nEdges, int &nTerminals, int *&terminals, vector<vector<int > > & adjMatrix, vector<vector<int > > & pairedTerminals, vector<vector<int > > & E ,int &cleanedSolution, int &initialSolution)

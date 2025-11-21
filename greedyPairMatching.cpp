@@ -201,7 +201,7 @@ int main(){
 
         if (valid && totalCost <= 2*Budget){
             // found
-            cout << "Solution Found "<< endl;
+            cout << "Solution Found , bound" << i << endl;
             // print answer here
             cout << "Total cost: " << totalCost << endl;
             cout << "Budget: "<< Budget<< endl;
